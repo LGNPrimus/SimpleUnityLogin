@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Networking;
+using System.Text;
+
+public class ApiHitday2 : MonoBehaviour
+{
+    [Header("Reference Placeolder")]
+    public Text OutputBox;
+
+
+   public InputField Number;
+   public InputField Pass;
+
+    [Header("Url")]
+    public string Url = "";
+    // Start is called before the first frame update
+    public void LoginBTN()
+    {
+       
+        StartCoroutine(HitApiNow(Url));
+    }
+
+   
+    IEnumerator HitApiNow(string LocalUrl)
+    {
+        WWWForm Newform = new WWWForm();
+        Newform.AddField("mobile", Number.text);
+        Newform.AddField("password", Pass.text);
+
+
+        UnityWebRequest WEbRequest = UnityWebRequest.Post(LocalUrl, Newform);
+       
+
+        yield return WEbRequest.SendWebRequest();
+
+        if (WEbRequest.isNetworkError)
+        {
+            Debug.LogError("Net nahi h");
+        }
+        else
+        {
+            string localData = WEbRequest.downloadHandler.text;
+
+            Debug.Log(localData);
+            DataDecoder(localData);
+        }
+    }
+    
+    void DataDecoder(string LocalDataJson)
+    {
+        
+
+        JsonClsNew LocalJson = JsonUtility.FromJson<JsonClsNew>(LocalDataJson);
+        Debug.Log(LocalJson.status);
+       if(LocalJson.status ==true)
+        {
+            OutputBox.text = LocalJson.msg;
+        }
+        else
+        {
+            OutputBox.text = "Please check id Password";
+        }
+    }
+}
